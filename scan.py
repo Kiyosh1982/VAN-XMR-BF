@@ -45,5 +45,3 @@ def load_wordlist():
     except Exception as e:
         print("❌ ERROR wordlist:", e)
         return []
-
-WORD
