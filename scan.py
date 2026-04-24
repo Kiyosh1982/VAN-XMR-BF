@@ -8,13 +8,15 @@ from telegram import Bot
 # ================= CONFIG =================
 WORDS_1_10 = ["wise", "gas", "choice", "maze", "muffin", "gown", "flame", "camp", "hill", "deliver"]
 
-# ⚠️ ISI LANGSUNG DI SINI
 TELEGRAM_TOKEN = "7654735781:AAGcVIbnVux2u1gyBKTS3F9SUmIxZMqXhYg"
 TELEGRAM_CHAT_ID = "5568964448"
 
 MAX_LOOP = 5000
 # ==========================================
 
+print("🔥 SCRIPT START")
+
+# ================= TELEGRAM =================
 bot = Bot(token=TELEGRAM_TOKEN)
 
 async def kirim(msg):
@@ -27,13 +29,31 @@ async def kirim(msg):
 print("📥 Loading wordlist...")
 
 url = "https://raw.githubusercontent.com/monero-project/monero/master/src/mnemonics/english.txt"
-WORDLIST = requests.get(url, timeout=10).text.strip().split("\n")
+
+WORDLIST = []
+
+for i in range(3):  # retry 3x
+    try:
+        r = requests.get(url, timeout=10)
+        if r.status_code == 200:
+            WORDLIST = r.text.strip().split("\n")
+            break
+    except:
+        pass
+
+print("Wordlist length:", len(WORDLIST))
 
 if len(WORDLIST) < 1000:
-    print("❌ Wordlist gagal load")
-    exit()
+    print("❌ Wordlist gagal load (fallback aktif)")
+    
+    WORDLIST = [
+        "abbey","ability","ablaze","abnormal","abort","abrasive","absorb",
+        "abyss","academy","acquire","across","adapt","addicted","adept",
+        "adjust","adopt","adorable","adrenalin","adult","advance","adverb",
+        "adverse","advert","advice","hidden","wall","gold","secret"
+    ]
 
-print(f"✅ Wordlist loaded: {len(WORDLIST)} words")
+    print("⚠️ Pakai fallback wordlist:", len(WORDLIST))
 
 # ================= CHECKSUM =================
 def get_checksum(words):
@@ -55,8 +75,8 @@ for i in range(MAX_LOOP):
 
     seed = " ".join(first_11 + [w12])
 
-    # 🎯 FILTER (ubah sesuai kebutuhan)
-    if "hidden" in seed or w12 in ["wall", "gold", "secret"]:
+    # 🎯 FILTER (sementara dibuat gampang dulu buat test)
+    if True:
         found += 1
 
         msg = f"""
