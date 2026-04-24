@@ -1,40 +1,26 @@
 import time
-import requests
 import os
 import zlib
+import requests
 
-# ================= CONFIG =================
-WORDS_1_10 = [
-    "wise","gas","choice","maze","muffin",
-    "gown","flame","camp","hill","deliver"
-]
+print("🔥 SCRIPT START")
 
-TELEGRAM_TOKEN = "7654735781:AAGcVIbnVux2u1gyBKTS3F9SUmIxZMqXhYg"
-TELEGRAM_CHAT_ID = "5568964448"
+# test wordlist
+try:
+    with open("english.txt") as f:
+        WORDLIST = [w.strip() for w in f if w.strip()]
+    print("✅ Wordlist:", len(WORDLIST))
+except:
+    print("❌ Gagal load wordlist")
+    exit()
 
-SEND_LIMIT = 5
-MAX_LOOP = 50000
-# ==========================================
+print("🚀 START LOOP")
 
-# ========= TELEGRAM =========
-def kirim_sync(msg):
-    try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-        requests.post(url, data={
-            "chat_id": TELEGRAM_CHAT_ID,
-            "text": msg
-        }, timeout=5)
-    except:
-        pass
+for i in range(5):
+    print("Loop ke:", i)
+    time.sleep(1)
 
-# ========= LOAD WORDLIST =========
-def load_wordlist():
-    print("📦 Loading wordlist (local)...")
-
-    try:
-        with open("english.txt") as f:
-            words = [w.strip() for w in f if w.strip()]
-
+print("✅ DONE")
         print(f"✅ Wordlist loaded: {len(words)}")
 
         if len(words) < 1000:
