@@ -1,98 +1,49 @@
-import random
 import time
-import zlib
-import asyncio
 import requests
-from telegram import Bot
+import os
+import zlib
 
 # ================= CONFIG =================
-WORDS_1_10 = ["wise", "gas", "choice", "maze", "muffin", "gown", "flame", "camp", "hill", "deliver"]
+WORDS_1_10 = [
+    "wise","gas","choice","maze","muffin",
+    "gown","flame","camp","hill","deliver"
+]
 
 TELEGRAM_TOKEN = "7654735781:AAGcVIbnVux2u1gyBKTS3F9SUmIxZMqXhYg"
 TELEGRAM_CHAT_ID = "5568964448"
 
-MAX_LOOP = 5000
+SEND_LIMIT = 5
+MAX_LOOP = 50000
 # ==========================================
 
-print("🔥 SCRIPT START")
-
-# ================= TELEGRAM =================
-bot = Bot(token=TELEGRAM_TOKEN)
-
-async def kirim(msg):
+# ========= TELEGRAM =========
+def kirim_sync(msg):
     try:
-        await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=msg)
-    except Exception as e:
-        print("Telegram error:", e)
-
-# ================= LOAD WORDLIST =================
-print("📥 Loading wordlist...")
-
-url = "https://raw.githubusercontent.com/monero-project/monero/master/src/mnemonics/english.txt"
-
-WORDLIST = []
-
-for i in range(3):  # retry 3x
-    try:
-        r = requests.get(url, timeout=10)
-        if r.status_code == 200:
-            WORDLIST = r.text.strip().split("\n")
-            break
+        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        requests.post(url, data={
+            "chat_id": TELEGRAM_CHAT_ID,
+            "text": msg
+        }, timeout=5)
     except:
         pass
 
-print("Wordlist length:", len(WORDLIST))
+# ========= LOAD WORDLIST =========
+def load_wordlist():
+    print("📦 Loading wordlist (local)...")
 
-if len(WORDLIST) < 1000:
-    print("❌ Wordlist gagal load (fallback aktif)")
-    
-    WORDLIST = [
-        "abbey","ability","ablaze","abnormal","abort","abrasive","absorb",
-        "abyss","academy","acquire","across","adapt","addicted","adept",
-        "adjust","adopt","adorable","adrenalin","adult","advance","adverb",
-        "adverse","advert","advice","hidden","wall","gold","secret"
-    ]
+    try:
+        with open("english.txt") as f:
+            words = [w.strip() for w in f if w.strip()]
 
-    print("⚠️ Pakai fallback wordlist:", len(WORDLIST))
+        print(f"✅ Wordlist loaded: {len(words)}")
 
-# ================= CHECKSUM =================
-def get_checksum(words):
-    prefix = "".join(word[:3] for word in words)
-    crc = zlib.crc32(prefix.encode()) & 0xffffffff
-    return WORDLIST[crc % len(WORDLIST)]
+        if len(words) < 1000:
+            raise Exception("Wordlist tidak lengkap")
 
-# ================= SCAN =================
-print("\n🚀 START SCANNING")
+        return words
 
-start = time.time()
-found = 0
+    except Exception as e:
+        print("❌ ERROR wordlist:", e)
+        return []
 
-for i in range(MAX_LOOP):
-    w11 = random.choice(WORDLIST)
-
-    first_11 = WORDS_1_10 + [w11]
-    w12 = get_checksum(first_11)
-
-    seed = " ".join(first_11 + [w12])
-
-    # 🎯 FILTER (sementara dibuat gampang dulu buat test)
-    if True:
-        found += 1
-
-        msg = f"""
-🎯 Candidate Found
-
-Seed:
-{seed}
-
-Loop: {i}
-Time: {time.strftime("%H:%M:%S")}
-"""
-
-        print(msg)
-        asyncio.run(kirim(msg))
-
-print("\n✅ DONE")
-print(f"Checked: {MAX_LOOP}")
-print(f"Found: {found}")
-print(f"Time: {time.time()-start:.2f}s")
+WORD
