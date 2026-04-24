@@ -1,0 +1,30 @@
+name: XMR Scanner PRO
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        worker: [1,2,3,4,5]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          pip install requests python-telegram-bot
+
+      - name: Run worker
+        run: |
+          echo "Worker ${{ matrix.worker }}"
+          python scan.py
